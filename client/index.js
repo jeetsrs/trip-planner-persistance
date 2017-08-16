@@ -152,3 +152,7 @@ function createHash() {
         .catch()
   }
 }
+
+document.getElementById('submit').addEventListener('click', (event) => {
+  fetch('/api/it')
+});

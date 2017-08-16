@@ -22,7 +22,6 @@ router.get("/", (req, res, next) => {
 
 router.get("/itineraries/:id", (req, res, next) => {
   var itineraryID = req.params.id;
-  console.log("***************************************",itineraryID);
   Itinerary.find({
       where: {
         id: itineraryID
@@ -31,16 +30,22 @@ router.get("/itineraries/:id", (req, res, next) => {
   })
       .then((itinerary) => {
     res.json(itinerary);
+    router.post()
       });
 });
 
 router.post("/itineraries", (req, res, next) => {
   const [ hotels, restaurants, activities ] = req.body;
-  // create itinerary with all associations
-  //   Itinerary.create({
-  //
-  //   })
-
+  //create itinerary with all associations
+    console.log(req.body);
+    Itinerary.create({
+    })
+        .then((response) => {
+      console.log(response)
+        })
+        .catch(next)
 });
+
+
 
 module.exports = router;

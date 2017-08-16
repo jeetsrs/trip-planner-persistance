@@ -690,6 +690,10 @@ function createHash() {
   }
 }
 
+document.getElementById('submit').addEventListener('click', (event) => {
+  fetch('/api/it')
+});
+
 
 /***/ }),
 /* 3 */
