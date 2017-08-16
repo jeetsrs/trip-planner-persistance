@@ -7,10 +7,13 @@ const attractions = require("./attractions");
  */
 
 const state = {
+  locationHash: null,
   hotels: [],
   restaurants: [],
   activities: []
 };
+
+createHash();
 
 /*
   * Instantiate the Map
@@ -124,4 +127,28 @@ function removeAttractionFromDOM(category, attractionData) {
 
   // Animate map to default position & zoom.
   map.flyTo({ center: [-74.0, 40.731], zoom: 12.3 });
+}
+
+function createHash() {
+  if (!location.hash) {
+    state.locationHash = Math.floor(Math.random() * 100) + 1;
+    location.hash = state.locationHash
+  } else {
+    // ajax request
+      var id = +location.hash.split('#')[1];
+      fetch(`/api/itineraries/${id}`)
+        .then(result => result.json())
+        .then((loadedAttractions) => {
+          for(var key in loadedAttractions){
+            if (state.hasOwnProperty(key)) {
+              state[key] = loadedAttractions[key];
+              buildAttractionAssets(key, loadedAttractions[key][0]);
+            }
+
+          }
+          state.locationHash = id
+
+        })
+        .catch()
+  }
 }
