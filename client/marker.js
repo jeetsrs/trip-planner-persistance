@@ -1,4 +1,6 @@
-const { Marker } = require("mapbox-gl");
+const {
+  Marker
+} = require("mapbox-gl");
 
 const iconURLs = {
   hotels: "http://i.imgur.com/D9574Cu.png",

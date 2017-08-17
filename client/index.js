@@ -15,8 +15,8 @@ const state = {
 createHash();
 
 /*
-  * Instantiate the Map
-  */
+ * Instantiate the Map
+ */
 
 mapboxgl.accessToken = "pk.eyJ1IjoiY2Fzc2lvemVuIiwiYSI6ImNqNjZydGl5dDJmOWUzM3A4dGQyNnN1ZnAifQ.0ZIRDup0jnyUFVzUa_5d1g";
 const map = new mapboxgl.Map({
@@ -29,8 +29,8 @@ const map = new mapboxgl.Map({
 });
 
 /*
-  * Populate the list of attractions
-  */
+ * Populate the list of attractions
+ */
 
 attractions.load().then(list => {
   list.hotels.forEach(attraction => makeOption(attraction, "hotels-choices"));
@@ -45,11 +45,12 @@ function makeOption(attraction, selector) {
 }
 
 /*
-  * Attach Event Listeners
-  */
+ * Attach Event Listeners
+ */
 
 // what to do when the `+` button next to a `select` is clicked
 ["hotels", "restaurants", "activities"].forEach(addEventHandlerFor);
+
 function addEventHandlerFor(attractionType) {
   document.getElementById(`${attractionType}-add`).addEventListener("click", () => handleAddAttraction(attractionType));
 }
@@ -84,8 +85,7 @@ function buildAttractionAssets(category, attraction) {
 
   // Create an 'attractionData' object that will be added to the state.
   // It contains the assets created plus all the original selected attraction data.
-  const attractionData = Object.assign(
-    {
+  const attractionData = Object.assign({
       assets: {
         itineraryItem,
         marker
@@ -116,7 +116,10 @@ function addAttractionToDOM(category, attractionData) {
   attractionData.assets.marker.addTo(map);
 
   // Animate the map
-  map.flyTo({ center: attractionData.place.location, zoom: 15 });
+  map.flyTo({
+    center: attractionData.place.location,
+    zoom: 15
+  });
 }
 
 function removeAttractionFromDOM(category, attractionData) {
@@ -125,49 +128,53 @@ function removeAttractionFromDOM(category, attractionData) {
   attractionData.assets.marker.remove();
 
   // Animate map to default position & zoom.
-  map.flyTo({ center: [-74.0, 40.731], zoom: 12.3 });
+  map.flyTo({
+    center: [-74.0, 40.731],
+    zoom: 12.3
+  });
 }
 
 function createHash() {
-    if (location.hash) {
-        console.log('in hash')
+  if (location.hash) {
+    // console.log('in hash')
     // ajax request
-      var id = +location.hash.split('#')[1];
-      fetch(`/api/itineraries/${id}`)
-        .then(result => result.json())
-        .then((loadedAttractions) => {
-          console.log(loadedAttractions)
-          for(var attractionType in loadedAttractions) {
-            if (state.hasOwnProperty(attractionType)) {
-              state[attractionType] = loadedAttractions[attractionType];
-              state[attractionType].forEach((attraction) => {
-                  buildAttractionAssets(attractionType, attraction);
-              })
-            }
+    var id = +location.hash.split('#')[1];
+    fetch(`/api/itineraries/${id}`)
+      .then(result => result.json())
+      .then((loadedAttractions) => {
+        // console.log(loadedAttractions)
+        for (var attractionType in loadedAttractions) {
+          if (state.hasOwnProperty(attractionType)) {
+            state[attractionType] = loadedAttractions[attractionType];
+            state[attractionType].forEach((attraction) => {
+              buildAttractionAssets(attractionType, attraction);
+            })
           }
-        })
-        .catch()
+        }
+      })
+      .catch()
   }
 }
 
-
-
 document.getElementById('submit').addEventListener('click', (event) => {
-//console.log('before fetch', state);
-    console.log(state);
+  //console.log('before fetch', state);
+  // console.log('before prune', state);
 
-    var json = JSON.prune(state);
-
-    fetch('/api/itineraries', {
-        method: 'post',
-        headers: {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json'
-        },
-        body: json
+  var json = JSON.prune(state);
+  // console.log('after prune', json);
+  fetch('/api/itineraries', {
+      method: 'post',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+      },
+      body: json
     })
-        // .then(res=>res.json())
-        // .then(res => console.log(res))
-        .catch((console.error))
+    .then(res=>res.json())
+    .then(res => {
+      console.log(res);
+      location.hash = res.id;
+    })
+    .catch((console.error))
 
 });

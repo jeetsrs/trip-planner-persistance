@@ -7,10 +7,22 @@ var prune = require('json-prune');
 
 router.get("/", (req, res, next) => {
   Promise.all([
-    Hotel.findAll({ include: [{ all: true }] }),
-    Restaurant.findAll({ include: [{ all: true }] }),
-    Activity.findAll({ include: [{ all: true }] })
-  ])
+      Hotel.findAll({
+        include: [{
+          all: true
+        }]
+      }),
+      Restaurant.findAll({
+        include: [{
+          all: true
+        }]
+      }),
+      Activity.findAll({
+        include: [{
+          all: true
+        }]
+      })
+    ])
     .then(([hotels, restaurants, activities]) => {
       res.json({
         hotels,
@@ -27,39 +39,49 @@ router.get("/itineraries/:id", (req, res, next) => {
       where: {
         id: itineraryID
       },
-      include: [{ all: true, nested: true }]
-  })
-      .then((itinerary) => {
+      include: [{
+        all: true,
+        nested: true
+      }]
+    })
+    .then((itinerary) => {
       console.log(itinerary.dataValues)
-    res.json(itinerary);
-      });
+      res.json(itinerary);
+    });
 });
 
 router.post("/itineraries", (req, res, next) => {
   console.log('in post');
-    var bod = JSON.parse(prune(req.body));
-  const { hotels, restaurants, activities } = bod;
-   var hotelIdArr = hotels.map((hotel) => {
-      return hotel.id;
-   })
-    var restaurantIdArr = restaurants.map((restaurant) => {
-      return restaurant.id;
-   })
-    var activityIdArr = activities.map((activity) => {
-      return activity.id;
-   })
-    console.log(hotelIdArr, restaurantIdArr, activityIdArr);
+  var bod = JSON.parse(prune(req.body));
+  const {
+    hotels,
+    restaurants,
+    activities
+  } = bod;
+  var hotelIdArr = hotels.map((hotel) => {
+    return hotel.id;
+  })
+  var restaurantIdArr = restaurants.map((restaurant) => {
+    return restaurant.id;
+  })
+  var activityIdArr = activities.map((activity) => {
+    return activity.id;
+  })
+  console.log(hotelIdArr, restaurantIdArr, activityIdArr);
   //create itinerary with all associations
-    Itinerary.create({
+  Itinerary.create({})
+    .then((itin) => {
+      console.log('itin:', itin.id);
+      itin.addHotels(hotelIdArr);
+      itin.addRestaurants(restaurantIdArr);
+      itin.addActivities(activityIdArr);
+      return itin.id;
     })
-        .then((itin) => {
-      itin.addHotels(hotelIdArr)
-      itin.addRestaurants(restaurantIdArr)
-      itin.addActivities(activityIdArr)
-        })
-        .catch(next)
+    .then(function(id){
+      console.log('return id:', id);
+      res.json({id});
+    })
+    .catch(next);
 });
-
-
 
 module.exports = router;
