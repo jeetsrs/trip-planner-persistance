@@ -7,7 +7,6 @@ const attractions = require("./attractions");
  */
 
 const state = {
-  locationHash: null,
   hotels: [],
   restaurants: [],
   activities: []
@@ -134,21 +133,18 @@ function createHash() {
         console.log('in hash')
     // ajax request
       var id = +location.hash.split('#')[1];
-      // BUG HERE - NOT BEING CALLED WHEN VISITING PAGE WITH HASH
       fetch(`/api/itineraries/${id}`)
         .then(result => result.json())
         .then((loadedAttractions) => {
           console.log(loadedAttractions)
-          for(var key in loadedAttractions){
-            if (state.hasOwnProperty(key)) {
-              state[key] = loadedAttractions[key];
-              // fix this, pass every item and not juust first only!!!
-              buildAttractionAssets(key, loadedAttractions[key][0]);
+          for(var attractionType in loadedAttractions) {
+            if (state.hasOwnProperty(attractionType)) {
+              state[attractionType] = loadedAttractions[attractionType];
+              state[attractionType].forEach((attraction) => {
+                  buildAttractionAssets(attractionType, attraction);
+              })
             }
-
           }
-          state.locationHash = id
-
         })
         .catch()
   }
