@@ -667,18 +667,19 @@ function removeAttractionFromDOM(category, attractionData) {
 }
 
 function createHash() {
-  if (!location.hash) {
-    state.locationHash = Math.floor(Math.random() * 100) + 1;
-    location.hash = state.locationHash
-  } else {
+    if (location.hash) {
+        console.log('in hash')
     // ajax request
       var id = +location.hash.split('#')[1];
+      // BUG HERE - NOT BEING CALLED WHEN VISITING PAGE WITH HASH
       fetch(`/api/itineraries/${id}`)
         .then(result => result.json())
         .then((loadedAttractions) => {
+          console.log(loadedAttractions)
           for(var key in loadedAttractions){
             if (state.hasOwnProperty(key)) {
               state[key] = loadedAttractions[key];
+              // fix this, pass every item and not juust first only!!!
               buildAttractionAssets(key, loadedAttractions[key][0]);
             }
 
@@ -690,8 +691,26 @@ function createHash() {
   }
 }
 
+
+
 document.getElementById('submit').addEventListener('click', (event) => {
-  fetch('/api/it')
+//console.log('before fetch', state);
+    console.log(state);
+
+    var json = JSON.prune(state);
+
+    fetch('/api/itineraries', {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json'
+        },
+        body: json
+    })
+        // .then(res=>res.json())
+        // .then(res => console.log(res))
+        .catch((console.error))
+
 });
 
 
